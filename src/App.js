@@ -1,119 +1,134 @@
-
-import React, {useState, useEffect} from "react"
-import Table from "../src/components/table"
+import React from "react"
 import Button from "@mui/material/Button"
 import Stack from "@mui/material/Stack"
-
-import Graph from "./components/graph"
-import {Resizable, ResizableBox} from "react-resizable";
 import Dashboard from "./components/Dashboard";
+import DateSelector from "./components/DateSelector"
 
 
 
 
 
-const App = () => {
+export default class App extends React.Component{
 
-  const [data, setData] = useState([])
-  const [dataChoice, chooseData]= useState("Total")
-  
-  const [time, setTime] = useState([])
-  const [timeJson, setJson] = useState([])
-
-  
-  useEffect(()=>{
-    fetch("/members").then(
-      res => res.json()
-    ).then(
-      data=> {
-        setData(data)
-        
-      }
-    )
-     
-     
-      var t = getTimes(data)
-      setTime(t)
-      var json = createTimejson(t)
-      setJson(json)
-      
-
-  })
-
-
-
-  const getTimes = (data) =>{
-    var timeList = []
     
-    var times = []
-   data.map(emp =>{
-      emp.createdOn.map(tim =>{
-        
-        timeList.push(tim)
-      })
-   })
-   
-   
-
-    timeList.map(time =>{
-      console.log(time.split('.')[0])
-      times.push(parseInt(time.split('.')[0]))
-      
-    })
-     
-    return times.sort(function(a,b){return(a-b)})
-  }
-
-
-  const createTimejson = (data) =>{
-    var t = data[0]
-    var tim = []
-    var count = 0
-    data.map(time =>{
-      if(t == time){
-        count += 1
-      }
-      else{
-
-        if(t > 12){
-          let ti = {time: t-12, value: count}
-          tim.push(ti)
+      constructor(props){
+        super(props);
+        this.state = {
+          data: [],
+          dataChoice: "Total",
+          activeData: [],
+          activeEmployees: ["TWRA Intern (BH05115)", "Tom Wochna (BH01558)", "Zack Dover (BH05212)", "Jay Ghussein (BH05196)"],
+          tickets: [],
+          date: new Date(),
+          filterDate: "",
+          employeeList: [],
+          mounted: false,
           
         }
-        else{
-          let ti = {time: t, value: count}
-          tim.push(ti)
-          
-        }
-        
-        
-        count = 0
-        t = time
       }
-    })
-    return tim
-  }
 
-  return (
+      componentDidMount(){
+        const e = []
+        var data = []
+        let isMounted=true
+        fetch("/members").then(
+          res => res.json()
+        ).then(
+          data=> {
+            this.setState({data:data})
+            
+          }
+        )
+        this.state.activeEmployees.map(activeEmp=>{
+          this.state.data.map(allEmp =>{
+            if(allEmp.name == activeEmp){
+              e.push(allEmp)
+            }
+          })
+        })
+        this.setState({activeData: e})
+        let ticketList = []
+        
+        this.state.data.map(employee =>{
+          
+            employee.tickets.map(ticket =>{
+               ticketList.push(ticket)
+               
+               var date = new Date(ticket.timeCreated)
+                ticket.timeCreated = date;
+           
+                
+            })
+    
+    
+           
+        })
+       
+       this.setState({tickets: ticketList})
+
+        
+        let filter = ticketList.filter( ticket =>ticket.timeCreated < this.state.date && ticket.timeCreated > this.state.filterDate)
+
+       
+      }
+
+      componentWillUnmount(){
+        this.setState = (state,callback) =>{
+          return;
+        }
+      }
+
+      setFromDate = (date) =>{
+        this.setState({filterDate: date})
+        
+      }
+
+      setToDate = (date) =>{
+        this.setState({date: date})
+      }
+
+      changeData = (e) =>{
+        this.setState({dataChoice: e})
+        
+      }
+
+    
+
+
+
+      render(){
+
+        return (
+        
+          <div className="App">
+          
+ 
+       <Stack direction="row" spacing={2}>
+       
+       <Button variant="contained"  onClick={()=> this.changeData("Total")} >Total Incidents</Button>
+          <Button variant="contained" onClick={()=> this.changeData("Access")}  >Access Incident</Button>
+          <Button variant="contained" onClick={()=> this.changeData("Help")} >Help / Assistance Incidents</Button>
+          <Button variant="contained"  onClick={()=> this.changeData("Fail")}  >Failure Incidents</Button>
+         <Button variant="contained"  onClick={()=> this.changeData("Incidents")}  >View Incidents</Button>
+         <DateSelector filterDate={this.setFromDate} label={"From"} />
+          <p3> ____</p3>
+         <DateSelector filterDate={this.setToDate} label={"To"} />
+       </Stack>
+ 
+       <div className="App2">
+                
+               <Dashboard mounted={this.state.mounted} data={this.state.data} dataChoice={this.state.dataChoice} filterDate={this.state.filterDate} date={this.state.date}/>
+             
+             
+       </div>
+     </div>
+ 
    
-         <div className="App">
-      <Stack direction="row" spacing={2}>
-      
-      <Button variant="contained"   onClick={()=>chooseData("Total")}>Total Incidents</Button>
-         <Button variant="contained"  onClick={()=>chooseData("Access")}>Access Incident</Button>
-         <Button variant="contained"  onClick={()=>chooseData("Help")}>Help / Assistance Incidents</Button>
-         <Button variant="contained"   onClick={()=>chooseData("Fail")}>Failure Incidents</Button>
-      
-      </Stack>
+   );
 
-      <div className="grid-container">
-            {console.log(timeJson)}
-            <Dashboard data={data} dataChoice={dataChoice}  time={timeJson}/>
-      </div>
-    </div>
 
-  
-  );
+
+
+      }
+
 }
-
-export default App;

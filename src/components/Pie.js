@@ -9,6 +9,7 @@ const Pchart = props =>  {
 
       useEffect(()=>{
         setData(createObjects(props.data))
+        
       }, [props.data])
 
 
@@ -17,8 +18,9 @@ const Pchart = props =>  {
         let phone = {name:"phone", count:0, helpCount:0, accessCount:0, failCount:0}
         let other = {name:"other", count:0, helpCount:0, accessCount:0, failCount:0}
         var contacts = []
-        data.map(employee =>{
         
+        data.map(employee =>{
+          
           email.count += employee.emailCount
           phone.count += employee.phoneCount
           other.count += employee.otherCount
@@ -36,13 +38,14 @@ const Pchart = props =>  {
           
         })
         contacts.push(email, phone, other)
+       
         return contacts
       }
   
 
     if(props.dataChoice == "Total"){
         return (
-           <div>
+        <div style={{height:"20%"}}>
                   <h1>Contact Type</h1>
                   <PieChart width={600} height={500}>
                   <Pie
@@ -69,7 +72,7 @@ const Pchart = props =>  {
     else if(props.dataChoice == "Access"){
         return (
            <div>
-                <h1>Contact Type</h1>
+                <h1> Access Contact Type</h1>
                 <PieChart width={600} height={500}>
                   <Pie
                     data={data}
@@ -93,7 +96,7 @@ const Pchart = props =>  {
    else if(props.dataChoice == "Help"){
         return (
             <div>
-                  <h1>Contact Type</h1>
+                  <h1> Help / Assistance Contact Type</h1>
                   <PieChart width={600} height={500}>
                   <Pie
                     data={data}
@@ -116,9 +119,11 @@ const Pchart = props =>  {
     else if(props.dataChoice == "Fail"){
         return (
             <div>
-                <h1>Contact Type</h1>
+                <h1>Failure Contact Type</h1>
+                
               <PieChart width={600} height={500}>
                   <Pie
+                  
                     data={data}
                     dataKey="failCount"
                     cx="50%"

@@ -1,172 +1,128 @@
-import React, { PureComponent } from 'react';
-import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Pie, PieChart } from 'recharts';
+import React from "react"
+import Button from "@mui/material/Button"
+import Stack from "@mui/material/Stack"
+import Dashboard from "./components/Dashboard";
+import DateSelector from "./components/DateSelector"
 
 
 
-export default class Graph extends PureComponent {
-   
 
-  render() {
-    if(this.props.dataChoice == "Total"){
-        return (
-           <div>
-                {console.log(this.props.data)}
-                <h3>Volume of Total Incidents per Employee</h3>
-                <ResponsiveContainer width="100%" height={600}>
-              <BarChart
-                width="100%"
-                height={300}
-                data={this.props.data}
-                margin={{
-                  top: 20,
-                  right: 30,
-                  left: 20,
-                  bottom: 5,
-                }}
-                
-              >
-                <CartesianGrid strokeDasharray="4 3" />
-                <XAxis style={{fontSize:"50%"}}   dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                
-                <Bar dataKey="AccessIncidents" stackId="a" fill="#479761" />
-                <Bar dataKey="HelpIncidents" stackId="a" fill="#0085D1" />
-                <Bar dataKey="FailCount" stackId="a" fill="#D12500" />
-      
-              </BarChart>
-            </ResponsiveContainer>
-           </div>
-          );
-    }
 
-    else if(this.props.dataChoice == "Access"){
-        return (
-           <div >
-                  <h3>Volume of Access Incidents per Employee</h3>
-                <ResponsiveContainer width="100%" height={600}>
-              <BarChart
-                width="100%"
-                height={300}
-                data={this.props.data}
-                margin={{
-                  top: 20,
-                  right: 30,
-                  left: 20,
-                  bottom: 5,
-                }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis style={{fontSize:"50%"}}   dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                
-                <Bar dataKey="passwordReset" stackId="a" fill="#479761" />
-                <Bar dataKey="unlockAccount" stackId="a" fill="#0085D1" />
+export default class App extends React.Component{
 
-                
-      
-              </BarChart>
-            </ResponsiveContainer>
-           </div>
-          );
-    }
-   else if(this.props.dataChoice == "Help"){
-        return (
-            <div>
-                <h3>Volume of Help / Assistance Incidents per Employee</h3>
-                <ResponsiveContainer width="100%" height={600}>
-              <BarChart
-                width="100%"
-                height={300}
-                data={this.props.data}
-                margin={{
-                  top: 20,
-                  right: 30,
-                  left: 20,
-                  bottom: 5,
-                }}
-              >
-                <CartesianGrid strokeDasharray="4 3" />
-                <XAxis style={{fontSize:"50%"}}   dataKey="name" />
-                <YAxis   />
-                <Tooltip />
-                <Legend />
-                
-                <Bar dataKey="assitanceSoftware" stackId="a" fill="#479761" />
-                <Bar dataKey="assistanceHardware" stackId="a" fill="#0085D1" />
-                <Bar dataKey="infoRequest" stackId="a" fill="#D12500" />
-      
-              </BarChart>
-            </ResponsiveContainer>
-            </div>
-          );
-    }
-
-    else if(this.props.dataChoice == "Fail"){
-        return (
-          <div>
-            <h3>Volume of Failure Incidents per Employee</h3>
-          <ResponsiveContainer width="100%" height={600}>
-        <BarChart
-          width="100%"
-          height={300}
-          data={this.props.data}
-          margin={{
-            top: 20,
-            right: 30,
-            left: 20,
-            bottom: 5,
-          }}
-        >
-          <CartesianGrid strokeDasharray="4 3" />
-          <XAxis style={{fontSize:"50%"}}  dataKey="name" />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          
-          <Bar dataKey="serviceDown" stackId="a" fill="#479761" />
-          <Bar dataKey="serviceDegradation" stackId="a" fill="#0085D1" />
-          
-
-        </BarChart>
-      </ResponsiveContainer>
-      </div>
-          );
-    }
-
-    else if(this.props.dataChoice == "Time"){
-      return (
-         <div>
-         
-              <h3>Number of Calls per Hour</h3>
-              <ResponsiveContainer width="100%" height={600}>
-            <BarChart
-              width="100%"
-              height={300}
-              data={this.props.time}
-              margin={{
-                top: 20,
-                right: 30,
-                left: 20,
-                bottom: 5,
-              }}
-            >
-              <CartesianGrid strokeDasharray="8 3" />
-              <XAxis style={{fontSize:"70%"}} stroke="#0085D1"  dataKey="time" />
-              <YAxis stroke="#0085D1"   />
-              <Tooltip fontSize="20px"/>
-              
-              
-              <Bar dataKey="value" stackId="a" stroke="#0085D1" fill="#0085D1" />
-              
     
-            </BarChart>
-          </ResponsiveContainer>
-         </div>
-        );
-  }
-}
+      constructor(props){
+        super(props);
+        this.state = {
+          data: [],
+          dataChoice: "Total",
+          activeData: [],
+          activeEmployees: ["TWRA Intern (BH05115)", "Tom Wochna (BH01558)", "Zack Dover (BH05212)", "Jay Ghussein (BH05196)"],
+          tickets: [],
+          date: new Date(),
+          filterDate: "",
+          employeeList: [],
+          mounted: false,
+          
+        }
+      }
+
+      componentDidMount(){
+        const e = []
+        var data = []
+        let isMounted=true
+        fetch("/members").then(
+          res => res.json()
+        ).then(
+          data=> {
+            this.setState({data:data})
+            
+          }
+        )
+        this.state.activeEmployees.map(activeEmp=>{
+          this.state.data.map(allEmp =>{
+            if(allEmp.name == activeEmp){
+              e.push(allEmp)
+            }
+          })
+        })
+        this.setState({activeData: e})
+        let ticketList = []
+        
+        this.state.data.map(employee =>{
+          
+            employee.tickets.map(ticket =>{
+               ticketList.push(ticket)
+               
+               var date = new Date(ticket.timeCreated)
+                ticket.timeCreated = date;
+           
+                
+            })
+    
+    
+           
+        })
+       
+       this.setState({tickets: ticketList})
+
+        
+        let filter = ticketList.filter( ticket =>ticket.timeCreated < this.state.date && ticket.timeCreated > this.state.filterDate)
+
+       
+      }
+
+      componentWillUnmount(){
+        this.setState = (state,callback) =>{
+          return;
+        }
+      }
+
+      getFilterDate = (date) =>{
+        this.setState({filterDate: date})
+        
+      }
+
+      changeData = (e) =>{
+        this.setState({dataChoice: e})
+        
+      }
+
+    
+
+
+
+      render(){
+
+        return (
+        
+          <div className="App">
+          
+ 
+       <Stack direction="row" spacing={2}>
+       
+       <Button variant="contained"  onClick={()=> this.changeData("Total")} >Total Incidents</Button>
+          <Button variant="contained" onClick={()=> this.changeData("Access")}  >Access Incident</Button>
+          <Button variant="contained" onClick={()=> this.changeData("Help")} >Help / Assistance Incidents</Button>
+          <Button variant="contained"  onClick={()=> this.changeData("Fail")}  >Failure Incidents</Button>
+         <Button variant="contained"  onClick={()=> this.changeData("Incidents")}  >View Incidents</Button>
+         <DateSelector filterDate={this.getFilterDate} />
+       </Stack>
+ 
+       <div className="App2">
+                
+               <Dashboard mounted={this.state.mounted} data={this.state.data} dataChoice={this.state.dataChoice} filterDate={this.state.filterDate} date={this.state.date}/>
+             
+             
+       </div>
+     </div>
+ 
+   
+   );
+
+
+
+
+      }
+
 }

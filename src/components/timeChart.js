@@ -1,32 +1,32 @@
 import React, { PureComponent } from 'react';
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Pie, PieChart } from 'recharts';
 import {useState, useEffect} from "react"
+import Graph from './graph';
 
-const TimeChart = props =>{
+const TimeGraph = props =>{
     const [time, setTime] = useState([])
-  const [timeJson, setJson] = useState([])
-  const [data, setData] = useState([])
-  
-  useEffect(()=>{
+    const [timeJson, setJson] = useState([])
+    const [data, setData] = useState([])
+    var t = []
+    var json = []
 
-        setData(props.data)
-      var t = getTimes(props.data)
-      setTime(t)
-      var json = createTimejson(time)
-      setJson(json)
-  
-       
+  useEffect( ()=>{
+
+     
+     
+      
+    setJson(getTimes(props.data))
+      
     
+      
     
-
-
-  })
+   },[props])
 
 
   const getTimes = (data) =>{
     var timeList = []
-    
     var times = []
+    
    data.map(emp =>{
       emp.createdOn.map(tim =>{
         
@@ -37,11 +37,24 @@ const TimeChart = props =>{
    
 
     timeList.map(time =>{
-      times.push(parseInt(time.split('.')[0]))
+     var x = time
+     
+      if(x != ''){
+      
+       time=  parseInt(time)
+       times.push(time)
+      }
+      
+
       
     })
-     
-    return times.sort(function(a,b){return(a-b)})
+    var t = times.sort(function(a,b){return(a-b)})
+
+    var json = createTimejson(times.sort(function(a,b){return(a-b)}))
+   
+
+    
+    return json
   }
 
 
@@ -50,64 +63,52 @@ const TimeChart = props =>{
     var tim = []
     var count = 0
     data.map(time =>{
+
       if(t == time){
         count += 1
+        
       }
       else{
-
-        if(t > 12){
-          let ti = {time: t-12, value: count}
-          tim.push(ti)
+        
+        let ti = {time: t, value: count}
+        tim.push(ti)
           
-        }
-        else{
-          let ti = {time: t, value: count}
-          tim.push(ti)
-          
-        }
+    
         
         
-        count = 0
+        count = 1
         t = time
       }
     })
+    let ti = {time: t, value: count}
+    tim.push(ti)
+    
+   
     return tim
   }
 
-  return (
-    <div>
-       {console.log("Hello")}
-         <h3>Number of Calls per Hour</h3>
-         {console.log(timeJson)}
-         <ResponsiveContainer width="100%" height={600}>
-       <BarChart
-         width="100%"
-         height={300}
-         data={timeJson}
-         margin={{
-           top: 20,
-           right: 30,
-           left: 20,
-           bottom: 5,
-         }}
-       >
-         <CartesianGrid strokeDasharray="8 3" />
-         <XAxis style={{fontSize:"70%"}} stroke="#0085D1"  dataKey="time" />
-         <YAxis stroke="#0085D1"   />
-         <Tooltip fontSize="20px"/>
-         
-         
-         <Bar dataKey="value" stackId="a" stroke="#0085D1" fill="#0085D1" />
-         
-
-       </BarChart>
-     </ResponsiveContainer>
-    </div>
-   );
-
-
-
+ 
+  if(timeJson.length == 0 ){
+    return (
+    
+      <div>
+        
+          <h1>Cant load data</h1>
+          
+      </div>
+     );
+  }
+  else{
+    return (
+    
+      <div>
+        
+          <Graph data = {timeJson} dataChoice={"Time"}/>
+          
+      </div>
+     );
+  }
 
 }
 
-export default TimeChart;
+export default TimeGraph;

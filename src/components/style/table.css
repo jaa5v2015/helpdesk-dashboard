@@ -1,19 +1,21 @@
 .table{
     display: grid;
-    grid-template-columns: repeat(3, 30%);
+    grid-template-columns: repeat(4, 20%);
     border-bottom: 1px solid black;
     width: 100%;
     border-right: 1px solid black;
     box-shadow: 2px 2px 2px grey;
     font-size: 60%;
     margin-left: 10%;
+   
 }
 
 
 .table-container{
     
     width: 90%;
-    height: 50%
+    height: 50%;
+    overflow-y:scroll;
     
 
 

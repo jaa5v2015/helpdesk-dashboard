@@ -11,6 +11,8 @@ export default class timeChart extends PureComponent {
         }
     }
 
+    
+
   render() {
     
         return(
